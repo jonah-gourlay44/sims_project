@@ -3,7 +3,8 @@ from fem_functions import find_boundaries_1d
 import argparse
 import matplotlib.pyplot as plt
 from geometry_mesh_study import *
-from model_paramters import *
+from model_parameters import *
+from matrix_assembly_es_1d import *
 
 Px1=100;Px2=800;Py1=100;Py2=320
 
@@ -36,8 +37,6 @@ def main():
     linear_elements=1
     qudratic_elements=0
 
-    eps_0=8.85e-12
-
     num_elem=[]
     for i in range(2,201,2):
         num_elem.append(i)
@@ -50,7 +49,7 @@ def main():
     We3_=np.zeros((n1_,1))
 
     for ind_ in range(n1_):
-        N1=num_elem[ind_]
+        N1=num_elem[ind_][0]
 
         geometry_mesh = geometry_mesh_study(N1)
         geometry_mesh.discretize()
@@ -63,7 +62,10 @@ def main():
 
         #plot matrix
 
-        
+        matrix_assembly = matrix_assembly_1d(geometry_mesh, parameters)
+
+
+
 
 
 

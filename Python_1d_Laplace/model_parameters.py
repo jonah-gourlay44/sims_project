@@ -3,6 +3,7 @@ import numpy as np
 class model_parameters(object):
 
     def __init__(self, geometry):
+        self.eps_0=8.85e-12
 
         #parameters of air
         mu_r_a =1
