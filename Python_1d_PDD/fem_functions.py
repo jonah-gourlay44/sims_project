@@ -15,16 +15,17 @@ def dNi_dNj_int_cont_line_Ver_1(xt):
 
     return ae
 
-def Ni_int_cont_line_Ver_1(xt):
-    Le = xt[1] - xt[0]
+def Ni_f_int_cont_line_Ver_1(xt):
+    pass
+    # Le = xt[1] - xt[0]
 
-    if Le < 0:
-        print('Negative length of the line element')
+    # if Le < 0:
+    #     print('Negative length of the line element')
     
-    be = np.zeros((2,1))
-    be[:,0]=Le/2*np.asarray([1,1])
+    # be = np.zeros((2,1))
+    # be[:,0]=Le/2*np.asarray([1,1])
 
-    return be
+    # return be
 
 def dNi_line_Ver_1(xt):
     Le = xt[1] - xt[0]
@@ -37,3 +38,6 @@ def dNi_line_Ver_1(xt):
     dN[1,0] = 1/Le
 
     return dN
+
+def beta_Ni_Nj(xt):
+    pass 
