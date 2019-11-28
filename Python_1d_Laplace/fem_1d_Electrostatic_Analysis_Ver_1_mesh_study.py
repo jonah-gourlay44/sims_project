@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from geometry_mesh_study import *
 from model_parameters import *
 from matrix_assembly_es_1d import *
+from scipy import sparse
 
 Px1=100;Px2=800;Py1=100;Py2=320
 
@@ -64,12 +65,24 @@ def main():
 
         matrix_assembly = matrix_assembly_1d(geometry_mesh, parameters)
 
+        matrix_assembly.build_matrices()
+        matrix_assembly.impose_boundary_conditions()
 
+        matrix_dict = matrix_assembly.A
+        b = matrix_assembly.b
 
+        keys, values = matrix_dict.items()
+        i, j = zip(*keys)
+        i = np.array(i)
+        j = np.array(j)
+        s = np.array(list(values))
 
+        Nn = geometry_mesh.Nn
+        A = sparse.bsr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
 
+        X = sparse.linalg.spsolve(A, b)
 
-
+        Phi = X
 
 if __name__ == '__main__':
     main()
