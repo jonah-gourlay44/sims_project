@@ -6,6 +6,7 @@ from geometry_mesh_study import *
 from model_parameters import *
 from matrix_assembly_es_1d import *
 from scipy import sparse
+from scipy.sparse.linalg import spsolve
 
 Px1=100;Px2=800;Py1=100;Py2=320
 
@@ -71,16 +72,16 @@ def main():
         matrix_dict = matrix_assembly.A
         b = matrix_assembly.b
 
-        keys, values = matrix_dict.items()
+        keys, values = zip(*matrix_dict.items())
         i, j = zip(*keys)
         i = np.array(i)
         j = np.array(j)
         s = np.array(list(values))
 
         Nn = geometry_mesh.Nn
-        A = sparse.bsr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
+        A = sparse.csr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
 
-        X = sparse.linalg.spsolve(A, b)
+        X = spsolve(A, b)
 
         Phi = X
 
