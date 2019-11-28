@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from geometry_mesh_study import *
 from model_parameters import *
 from matrix_assembly_es_1d import *
+from compute_fields import *
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 
@@ -76,14 +77,22 @@ def main():
         i, j = zip(*keys)
         i = np.array(i)
         j = np.array(j)
-        s = np.array(list(values))
+        s = np.array(values)
 
         Nn = geometry_mesh.Nn
         A = sparse.csr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
 
         X = spsolve(A, b)
-
         Phi = X
+
+        #plot final solutions
+
+        fields = field_computation(geometry_mesh, parameters, Phi)
+        fields.compute_fields()
+
+        We1_[ind_] = fields.We1
+        We2_[ind_] = fields.We2
+        We3_[ind_] = fields.We3
 
 if __name__ == '__main__':
     main()

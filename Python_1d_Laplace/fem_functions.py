@@ -25,3 +25,15 @@ def Ni_int_cont_line_Ver_1(xt):
     be[:,0]=Le/2*np.asarray([1,1])
 
     return be
+
+def dNi_line_Ver_1(xt):
+    Le = xt[1] - xt[0]
+
+    if Le < 0:
+        print('Negative length of the line element')
+    
+    dN = np.zeros((2,1))
+    dN[0,0] = -1/Le
+    dN[1,0] = 1/Le
+
+    return dN

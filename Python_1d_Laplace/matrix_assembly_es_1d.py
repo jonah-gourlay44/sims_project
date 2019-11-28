@@ -1,7 +1,6 @@
 #Electrostatic Solver 1-D
 #Matrix Assembly
 
-from scipy import sparse
 import numpy as np
 from fem_functions import *
 import itertools
