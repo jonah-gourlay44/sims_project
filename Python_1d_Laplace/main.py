@@ -17,11 +17,8 @@ def select_plot(plot_dict, plot, plot_type):
 
 def update(plot_dict, plot, plot_type, source, p):
     df = select_plot(plot_dict, plot, plot_type)
-    #x_name = x_names[plot.value]
-    #y_name = y_names[plot.value]
 
     which_plot = plot_type.value
-
 
     if which_plot == 'mesh':
         x_name = 'Position (cm)'
@@ -77,6 +74,6 @@ def main():
     update(plot_dict, plot, plot_type, source, p)
 
     curdoc().add_root(l)
-    curdoc.title = 'plot'
+    curdoc.title = 'Electrostatic Laplace 1-D'
 
 main()

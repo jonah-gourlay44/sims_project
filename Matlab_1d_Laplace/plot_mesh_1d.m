@@ -13,4 +13,5 @@ end
 
 for i=1:Nn
    plot(x_no(i),0,'ko'); 
+   disp('hi');
 end
