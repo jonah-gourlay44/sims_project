@@ -13,7 +13,7 @@ Px1=100;Px2=800;Py1=100;Py2=320;    % Size of figures
 plot_mesh=0;
 plot_mat_props=0;
 plot_source_field=0;
-plot_final_solution=0;
+plot_final_solution=1;
 linear_elements=1;
 quadratic_elements=0;
 

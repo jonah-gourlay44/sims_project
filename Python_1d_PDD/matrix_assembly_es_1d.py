@@ -38,7 +38,7 @@ class matrix_assembly_1d(object):
             print(phi_n_lin)
             print(phi_v_lin)
             
-            ae=dNi_dNj_int_cont_line_Ver_1(xl)
+            ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl, psi_lin, phi_n_lin, phi_v_lin)
             be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.psi_pp[i], psi_lin, phi_n_lin, phi_v_lin, self.parameters.n_donor[i] - self.parameters.n_acceptor[i]) #TODO update this fem function 
 
             ae=ae*eps_r[i]
