@@ -25,12 +25,21 @@ class matrix_assembly_1d(object):
         eps_0 = self.parameters.eps_0
 
         for i in range(Ne_1d):    
-            # TODO add second term to matrix elements
+
             nds_= np.asarray(el_1d_no[i],dtype=np.int)
             xl=x_no[nds_]
+            Le = xl[1]-xl[0]
+
+            #take linear interpolations of psi, phi_n, phi_v
+            psi_lin = lambda x : (self.parameters.psi[nds_[1]] - self.parameters.psi[nds_[0]]) * (x - xl[0]) /Le + self.parameters.psi[nds_[0]]
+            phi_n_lin = lambda x : (self.parameters.phi_n[nds_[1]] - self.parameters.phi_n[nds_[0]]) * (x - xl[0]) /Le + self.parameters.phi_n[nds_[0]]
+            phi_v_lin = lambda x : (self.parameters.phi_v[nds_[1]] - self.parameters.phi_v[nds_[0]]) * (x - xl[0]) /Le + self.parameters.phi_v[nds_[0]]
+            print(psi_lin)
+            print(phi_n_lin)
+            print(phi_v_lin)
             
             ae=dNi_dNj_int_cont_line_Ver_1(xl)
-            be=Ni_int_cont_line_Ver_1(xl) #TODO update this fem function 
+            be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.psi_pp[i], psi_lin, phi_n_lin, phi_v_lin, self.parameters.n_donor[i] - self.parameters.n_acceptor[i]) #TODO update this fem function 
 
             ae=ae*eps_r[i]
             be=be*rho[i]
@@ -54,8 +63,8 @@ class matrix_assembly_1d(object):
     #TODO change boundary conditions
     def impose_boundary_conditions(self):
         Nn = self.geometry.Nn
-        phi_1 = self.parameters.phi_1
-        phi_2 = self.parameters.phi_2
+        phi_1 = self.parameters.psi_1
+        phi_2 = self.parameters.psi_2
 
         for i in range(Nn):
             index_Nn = (Nn-1, i)
