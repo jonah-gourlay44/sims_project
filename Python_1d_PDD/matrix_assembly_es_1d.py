@@ -37,12 +37,13 @@ class matrix_assembly_1d(object):
             b_n = -a_n*x1[0]+(self.parameters.psi[i] - self.parameters.phi_n[i]) 
             a_p = (-self.parameters.psi[i+1] + self.parameters.phi_p[i+1])-(-self.parameters.psi[i] + self.parameters.phi_p[i])/Le
             b_p = -a_p*x1[0]+(-self.parameters.psi[i] + self.parameters.phi_p[i]) 
+
             #compute the matrix and vector elements
             ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl,a,b,a_n,b_n,a_p,b_p)
-            be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.psi_pp[i], psi_lin, phi_n_lin, phi_v_lin, self.parameters.n_donor[i] - self.parameters.n_acceptor[i]) #TODO update this fem function 
+            be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.n_donor - self.parameters.n_acceptor, a,b,a_n,b_n,a_p,b_p, self.parameters.psi_pp[i], Le)
 
-            ae=ae*eps_r[i]
-            be=be*rho[i]
+            # ae=ae*eps_r[i]
+            # be=be*rho[i]
 
             nds_ = tuple(nds_)
             indices = list(itertools.product(nds_,nds_))

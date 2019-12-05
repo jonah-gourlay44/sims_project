@@ -16,16 +16,17 @@ def dNi_dNj_int_cont_line_Ver_1(xt):
 
     return ae
 
-def Ni_f_int_cont_line_Ver_1(xt, psi_pp, psi_lin, phi_n_lin, phi_v_lin, N):
-    #numerically integrate over the element
-    x_f_int = integrate.quad(lambda x : x*(- psi_pp + N + np.exp(psi_lin(x) - phi_n_lin(x)) - np.exp(phi_v_lin(x) - psi_lin(x))), xt[0], xt[1])
-    f_int = integrate.quad(lambda x : (- psi_pp + N + np.exp(psi_lin(x) - phi_n_lin(x)) - np.exp(phi_v_lin(x) - psi_lin(x))), xt[0], xt[1])
-    
+#TODO check this
+def Ni_f_int_cont_line_Ver_1(xt, Na,a,b,a_n,b_n,a_p,b_p, psi_pp,Le):
+  
     be = np.zeros((2,1))
-    be[0,0]= - x_f_int[0] + xt[1]
-    be[1,0] = x_f_int[0] - xt[0]
-    be = be/(xt[1]-xt[0])
-
+    for i in range(2):
+        be[i,0] = ((a[i]*psi_pp + a[i]*N)*(xt[1]**2-xt[0]**2)/2 + 
+                    np.exp(b_n)*a[i]*x_exp_ax_int(a_n, xt) -
+                    a[i]*np.exp(b_p)*x_exp_ax_int(a_p, xt) -
+                    b[i]*(psi_pp-N)*Le + 
+                    b[i] * (np.exp(b_n)*exp_ax_int(a_n, xt) - np.exp(b_p)*exp_ax_int(a_p,xt))
+                    )
     return be
     
 
