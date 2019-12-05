@@ -41,16 +41,31 @@ def dNi_line_Ver_1(xt):
 
     return dN
 
-def beta_Ni_Nj(xt, psi_lin, phi_n_lin, phi_v_lin):
-    beta_x2_int = integrate.quad(lambda x : x**2 * (np.exp(psi_lin(x) - phi_n_lin(x)) - np.exp(phi_v_lin(x) - psi_lin(x))), xt[0], xt[1])[0]
-    beta_x_int = integrate.quad(lambda x : x * (np.exp(psi_lin(x) - phi_n_lin(x)) - np.exp(phi_v_lin(x) - psi_lin(x))), xt[0], xt[1])[0]
-    beta_int = integrate.quad(lambda x : (np.exp(psi_lin(x) - phi_n_lin(x)) - np.exp(phi_v_lin(x) - psi_lin(x))), xt[0], xt[1])[0]
-    Le = xt[1] - xt[0]
-    #let N0, N1 = ax + b
-    a = [-1/Le, 1/Le] 
-    b = [xt[1]/Le, -xt[0]/Le]
+def beta_Ni_Nj(xt, a,b,a_n,b_n,a_p,b_p):
     ae = np.zeros((2,2))
     for i in range(2):
         for j in range(2):
-            ae[i,j] = a[i]*a[j] * beta_x2_int + (a[i]*b[j] + a[j]*b[i])*beta_x_int + b[i]*b[j]*beta_int
+            ae[i,j] = ( np.exp(b_n)*(
+                        a[i]*a[j]*x2_exp_ax_int(a_n,xt)+
+                        (a[i]*b[j]+a[j]*b[i])*x_exp_ax_int(a_n,xt)+
+                        b[i]*b[j]*exp_ax_int(a_n,xt)) +
+                        np.exp(b_p)*(
+                        a[i]*a[j]*x2_exp_ax_int(a_p,xt)+
+                        (a[i]*b[j]+a[j]*b[i])*x_exp_ax_int(a_p,xt)+
+                        b[i]*b[j]*exp_ax_int(a_p,xt))
+                    )
     return ae
+
+###some nice little helper functions to make some of the above look not awful!!
+#these work!!
+def x2_exp_ax_int(a, xt):
+    (x_1,x_2)=xt
+    return (np.exp(a*x_2) * (a * x_2*(a*x_2-2)+2) - np.exp(a*x_1)*(a*x_1*(a*x_1-2)+2))/a**3
+
+def x_exp_ax_int(a, xt):
+    (x_1,x_2)=xt
+    return (np.exp(a*x_1)*(1-a*x_1)+np.exp(a*x_2)*(a*x_2-1))/a**2
+
+def exp_ax_int(a, xt):
+    (x_1,x_2)=xt
+    return (np.exp(a*x_2) - np.exp(a*x_1))/a

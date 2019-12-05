@@ -29,17 +29,16 @@ class matrix_assembly_1d(object):
             nds_= np.asarray(el_1d_no[i],dtype=np.int)
             xl=x_no[nds_]
             Le = xl[1]-xl[0]
-
-            #take linear interpolations of psi, phi_n, phi_v
-            psi_lin = lambda x : (self.parameters.psi[nds_[1]] - self.parameters.psi[nds_[0]]) * (x - xl[0]) /Le + self.parameters.psi[nds_[0]]
-            phi_n_lin = lambda x : (self.parameters.phi_n[nds_[1]] - self.parameters.phi_n[nds_[0]]) * (x - xl[0]) /Le + self.parameters.phi_n[nds_[0]]
-            phi_v_lin = lambda x : (self.parameters.phi_v[nds_[1]] - self.parameters.phi_v[nds_[0]]) * (x - xl[0]) /Le + self.parameters.phi_v[nds_[0]]
-            print(psi_lin)
-            print(phi_n_lin)
-            print(phi_v_lin)
-            
+            #let N0, N1 = ax + b
+            a=[-1/Le,1/Le]
+            b=[x1[1]/Le, -x1[0]/Le]
+            #let psi-phi_n, phi_p-psi be approximated using ax+b
+            a_n = (self.parameters.psi[i+1] - self.parameters.phi_n[i+1])-(self.parameters.psi[i] - self.parameters.phi_n[i])/Le
+            b_n = -a_n*x1[0]+(self.parameters.psi[i] - self.parameters.phi_n[i]) 
+            a_p = (-self.parameters.psi[i+1] + self.parameters.phi_p[i+1])-(-self.parameters.psi[i] + self.parameters.phi_p[i])/Le
+            b_p = -a_p*x1[0]+(-self.parameters.psi[i] + self.parameters.phi_p[i]) 
             #compute the matrix and vector elements
-            ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl, psi_lin, phi_n_lin, phi_v_lin)
+            ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl,a,b,a_n,b_n,a_p,b_p)
             be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.psi_pp[i], psi_lin, phi_n_lin, phi_v_lin, self.parameters.n_donor[i] - self.parameters.n_acceptor[i]) #TODO update this fem function 
 
             ae=ae*eps_r[i]
