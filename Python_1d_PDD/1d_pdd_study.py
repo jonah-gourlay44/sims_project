@@ -2,7 +2,7 @@ import argparse
 from geometry_mesh_study import *
 from compute_qfp import *
 from model_parameters import model_parameters
-from fem_study import *
+from fem_ep_study import *
 
 def main():
     parser = argparse.ArgumentParser(description='fem 1d Electrostatic Analysis')

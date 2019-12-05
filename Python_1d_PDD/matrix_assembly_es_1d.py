@@ -38,6 +38,7 @@ class matrix_assembly_1d(object):
             print(phi_n_lin)
             print(phi_v_lin)
             
+            #compute the matrix and vector elements
             ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl, psi_lin, phi_n_lin, phi_v_lin)
             be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.psi_pp[i], psi_lin, phi_n_lin, phi_v_lin, self.parameters.n_donor[i] - self.parameters.n_acceptor[i]) #TODO update this fem function 
 
@@ -60,11 +61,11 @@ class matrix_assembly_1d(object):
             
             self.b[nds_,0]=self.b[nds_,0]+be.reshape((be.shape[0],))
 
-    #TODO change boundary conditions
+    #TODO check boundary conditions!!!
     def impose_boundary_conditions(self):
         Nn = self.geometry.Nn
-        phi_1 = self.parameters.psi_1
-        phi_2 = self.parameters.psi_2
+        psi_1 = self.parameters.psi_1
+        psi_2 = self.parameters.psi_2
 
         for i in range(Nn):
             index_Nn = (Nn-1, i)
@@ -72,5 +73,5 @@ class matrix_assembly_1d(object):
 
             self.A[index_Nn] = 0; self.A[index_1] = 0
 
-        self.A[(0,0)] = 1; self.b[0] = phi_1
-        self.A[(Nn-1, Nn-1)] = 1; self.b[Nn-1] = phi_2
+        self.A[(0,0)] = 1; self.b[0] = psi_1
+        self.A[(Nn-1, Nn-1)] = 1; self.b[Nn-1] = psi_2

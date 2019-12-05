@@ -1,5 +1,6 @@
 import numpy as np
 
+#some real hardcore unit analysis needs to occur at some point
 class model_parameters(object):
 
     def __init__(self, geometry, potentials):
@@ -7,14 +8,20 @@ class model_parameters(object):
         self.geometry = geometry
         #set initial potential functions
         self.psi, self.phi_v, self.phi_n = potentials
+        
 
+        #electron and hole mobilities
+        #are these dependent on the doping?? probably??
+        self.mu_n = -1
+        self.mu_p = 1
+        
         #parameters of n-type
         mu_r_n =1
         sig_n=0
         eps_r_n=1
         rho_n=0
         n_donor_ntype = 10**16 #units are per cm^3
-
+        
         #parameters of p-type
         mu_r_p=1
         sig_p=0
@@ -54,6 +61,7 @@ class model_parameters(object):
         self.psi, self.phi_v, self.phi_n = potentials
         self.psi[0] = self.psi_1
         self.psi[1] = self.psi_2
+        
         for i in range(self.geometry.Ne_1d):
          #approximate psi'' as constant across element
             nds_= np.asarray(self.geometry.el_1d_no[i],dtype=np.int)

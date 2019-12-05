@@ -46,12 +46,3 @@ class fem_study:
 
         X = spsolve(A, b)
         self.d_phi = X
-
-        #plot final solutions (not really a thing here...)
-
-        # fields = field_computation(geometry_mesh, parameters, Phi)
-        # fields.compute_fields()
-
-        # We1_[ind_] = fields.We1
-        # We2_[ind_] = fields.We2
-        # We3_[ind_] = fields.We3
