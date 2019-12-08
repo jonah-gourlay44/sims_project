@@ -66,9 +66,9 @@ def main():
         iteration = 0
 
         #iterate through:
-        while(norm_d_phi > cutoff_norm and iteration < 100):
+        while(norm_d_phi > cutoff_norm and iteration < 100000):
             #perform FEM analysis to solve for d_phi
-            
+            print(norm_d_phi)
 
             fem = fem_study(args, parameters, geometry_mesh)
             psi = fem.d_phi + psi
