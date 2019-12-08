@@ -34,15 +34,25 @@ class matrix_assembly_1d(object):
             b=[xl[1]/Le, -xl[0]/Le]
             #let psi-phi_n, phi_v-psi be approximated using ax+b
             a_n = (self.parameters.psi[i+1] - self.parameters.phi_n[i+1])-(self.parameters.psi[i] - self.parameters.phi_n[i])/Le
+<<<<<<< HEAD
             b_n = -a_n*xl[0]+(self.parameters.psi[i] - self.parameters.phi_n[i]) 
             a_p = (-self.parameters.psi[i+1] + self.parameters.phi_v[i+1])-(-self.parameters.psi[i] + self.parameters.phi_v[i])/Le
             b_p = -a_p*xl[0]+(-self.parameters.psi[i] + self.parameters.phi_v[i]) 
             #compute the matrix and vector elements
             ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl,a,b,a_n,b_n,a_p,b_p)
             be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.psi_pp[i], self.parameters.psi, self.parameters.phi_n, self.parameters.phi_v, self.parameters.n_donor[i] - self.parameters.n_acceptor[i]) #TODO update this fem function 
+=======
+            b_n = -a_n*x1[0]+(self.parameters.psi[i] - self.parameters.phi_n[i]) 
+            a_p = (-self.parameters.psi[i+1] + self.parameters.phi_p[i+1])-(-self.parameters.psi[i] + self.parameters.phi_p[i])/Le
+            b_p = -a_p*x1[0]+(-self.parameters.psi[i] + self.parameters.phi_p[i]) 
 
-            ae=ae*eps_r[i]
-            be=be*rho[i]
+            #compute the matrix and vector elements
+            ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl,a,b,a_n,b_n,a_p,b_p)
+            be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.n_donor - self.parameters.n_acceptor, a,b,a_n,b_n,a_p,b_p, self.parameters.psi_pp[i], Le)
+>>>>>>> 0a7877715ab24e700a7f94e23af782f9bfeb0d2d
+
+            # ae=ae*eps_r[i]
+            # be=be*rho[i]
 
             nds_ = tuple(nds_)
             indices = list(itertools.product(nds_,nds_))
