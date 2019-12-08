@@ -3,7 +3,7 @@ from geometry_mesh_study import *
 from compute_qfp import *
 from model_parameters import model_parameters
 from fem_ep_study import *
-
+from electrical_analysis import compute_qfp
 
 def main():
     parser = argparse.ArgumentParser(description='fem 1d Electrostatic Analysis')
@@ -51,10 +51,10 @@ def main():
         geometry_mesh.discretize()
         
         #create random initial potential guess and compute initial qfp's
-        
+        analysis = compute_qfp(geometry_mesh.Nn)
         psi = np.random.rand(1,N1+1)[0]
-        phi_v = compute_hqfp(psi, geometry_mesh)
-        phi_n = compute_eqfp(psi, geometry_mesh)
+        phi_v = analysis.Phi_p
+        phi_n = analysis.Phi_n
         parameters=model_parameters(geometry_mesh, (psi, phi_v, phi_n))
         norm_d_phi = 10**3
 
@@ -70,10 +70,16 @@ def main():
             #perform FEM analysis to solve for d_phi
             print(norm_d_phi)
 
+            analysis.build_matrices(geometry_mesh,parameters,psi,'p')
+            analysis.solve_system('p')
+
+            analysis.build_matrices(geometry_mesh,parameters,psi,'n')
+            analysis.solve_system('n')
+
             fem = fem_study(args, parameters, geometry_mesh)
             psi = fem.d_phi + psi
-            phi_v = compute_hqfp(psi, geometry_mesh)
-            phi_n = compute_eqfp(psi, geometry_mesh)
+            phi_v = analysis.Phi_p
+            phi_n = analysis.Phi_n
             parameters.update_potentials((psi, phi_v, phi_n))
             norm_d_phi = np.linalg.norm(fem.d_phi)
             iteration += 1

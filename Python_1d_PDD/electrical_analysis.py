@@ -143,9 +143,7 @@ class compute_qfp(object):
                     val = 0
 
                 A[index] = val + ae
-            
-                
-        
+             
         for i in range(Nn):
             index_Nn = (Nn-1, i)
             index_1 = (0, i)
