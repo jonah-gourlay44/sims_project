@@ -45,4 +45,4 @@ class fem_study:
         A = sparse.csr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
 
         X = spsolve(A, b)
-        self.d_phi = X
+        self.d_psi = X

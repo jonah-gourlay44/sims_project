@@ -40,8 +40,7 @@ class matrix_assembly_1d(object):
 
             #compute the matrix and vector elements
             ae=dNi_dNj_int_cont_line_Ver_1(xl) + beta_Ni_Nj(xl,a,b,a_n,b_n,a_p,b_p)
-            be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.n_donor - self.parameters.n_acceptor, a,b,a_n,b_n,a_p,b_p, self.parameters.psi_pp[i], Le)
-
+            be=Ni_f_int_cont_line_Ver_1(xl, self.parameters.n_donor[i] - self.parameters.n_acceptor[i], a,b,a_n,b_n,a_p,b_p, self.parameters.psi_pp[i], Le)
             # ae=ae*eps_r[i]
             # be=be*rho[i]
 
@@ -61,11 +60,8 @@ class matrix_assembly_1d(object):
             
             self.b[nds_,0]=self.b[nds_,0]+be.reshape((be.shape[0],))
 
-    #TODO check boundary conditions!!!
     def impose_boundary_conditions(self):
         Nn = self.geometry.Nn
-        psi_1 = self.parameters.psi_1
-        psi_2 = self.parameters.psi_2
 
         for i in range(Nn):
             index_Nn = (Nn-1, i)
@@ -73,5 +69,6 @@ class matrix_assembly_1d(object):
 
             self.A[index_Nn] = 0; self.A[index_1] = 0
 
-        self.A[(0,0)] = 1; self.b[0] = psi_1
-        self.A[(Nn-1, Nn-1)] = 1; self.b[Nn-1] = psi_2
+        # since our potential is specified at the boundaries
+        self.A[(0,0)] = 1; self.b[0] = 0
+        self.A[(Nn-1, Nn-1)] = 1; self.b[Nn-1] = 0

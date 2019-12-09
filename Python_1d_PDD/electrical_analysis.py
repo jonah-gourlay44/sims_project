@@ -125,7 +125,7 @@ class compute_qfp(object):
             x_f_int=integrate.quad(lambda x: Ni_f(x, nds_, xl, self.Phi_p, self.Phi_n, psi, case), xl[0], xl[1])
             be[0,0] = - x_f_int[0] + xl[1]
             be[1,0] = x_f_int[0] - xl[0]
-            be = np.asarray(be/(xl[1]-xl[0]))
+            be = np.asarray(be/(xl[1]-xl[0]))   
 
             b[nds_,0] = b[nds_,0] + be.reshape((be.shape[0],)) 
 
@@ -136,7 +136,7 @@ class compute_qfp(object):
                 psi_ind_ = psi[nds]
             
                 ae=integrate.quad(lambda x: alpha_dNi_dNj(x, Le, gamma_ind_, psi_ind_), 0, Le)[0]
-
+                
                 try:
                     val = A[index]
                 except KeyError:
@@ -161,14 +161,16 @@ class compute_qfp(object):
 
         self.K = sparse.csr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
         self.b = b
-
+        print(self.b)
     def solve_system(self, case):
 
         X = spsolve(self.K, self.b)
-
+        print(X)
         if case == 'p':
             self.Phi_p = np.log(X)
+            print(self.Phi_p)
         elif case == 'n':
             self.Phi_n = np.log(X)
+            print(self.Phi_n)
 
     

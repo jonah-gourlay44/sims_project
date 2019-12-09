@@ -30,8 +30,9 @@ class model_parameters(object):
         n_acceptor_ptype = 10**16 #units are per cm^3
 
         #boundary conditions (Dirichlet)
-        self.psi_1=1.5
-        self.psi_2=0
+        self.psi_1=1.5 / (0.02585) #divide by thermal voltage
+        self.psi_2=0 / (0.02585)
+        
 
         self.mu_r=np.zeros((geometry.Ne_1d,1))
         self.sig=np.zeros((geometry.Ne_1d,1))
