@@ -66,9 +66,15 @@ def compute_U(x, ind_, xl, Phi_p, Phi_n, Psi, case):
 
     return U
 
-def alpha_dNi_dNj(x, Le, gamma, psi):
+def alpha_dNi_dNj_p(x, Le, gamma, psi):
 
-    integrand = Le**2 * np.exp(-psi[0] - (psi[1] - psi[0])/Le*x) / (gamma[0] + (gamma[1] - gamma[0])/Le*x)
+    integrand = -(1/Le**2) * np.exp(-psi[0] - (psi[1] - psi[0])/Le*x) / (gamma[0] + (gamma[1] - gamma[0])/Le*x)
+
+    return integrand
+
+def alpha_dNi_dNj_n(x, Le, gamma, psi):
+
+    integrand = -(1/Le**2) * np.exp(psi[0] + (psi[1] - psi[0])/Le*x) / (gamma[0] + (gamma[1] - gamma[0])/Le*x)
 
     return integrand
 
@@ -85,9 +91,12 @@ def Ni_f(x, ind_, xl, phi_p, phi_n, psi, case):
 
 class compute_qfp(object):
 
-    def __init__(self, Nn):
+    def __init__(self, Nn, V):
         self.Phi_p = np.random.rand(Nn)
         self.Phi_n = np.random.rand(Nn)
+        self.Phi_1 = V; self.Phi_Nn = 0
+        self.Phi_p[0] = self.Phi_1; self.Phi_p[Nn-1] = self.Phi_Nn
+        self.Phi_n[0] = self.Phi_1; self.Phi_n[Nn-1] = self.Phi_Nn
 
         self.Psi = None
         
@@ -101,8 +110,6 @@ class compute_qfp(object):
         el_1d_no = mesh.el_1d_no
         x_no = mesh.x_no
         Nn = mesh.Nn
-        phi_1 = parameters.psi_1
-        phi_2 = parameters.psi_2
         
         A = {}
         b = np.zeros((Nn,1))
@@ -123,9 +130,7 @@ class compute_qfp(object):
 
             be = np.zeros((2,1))
             x_f_int=integrate.quad(lambda x: Ni_f(x, nds_, xl, self.Phi_p, self.Phi_n, psi, case), xl[0], xl[1])
-            be[0,0] = - x_f_int[0] + xl[1]
-            be[1,0] = x_f_int[0] - xl[0]
-            be = np.asarray(be/(xl[1]-xl[0]))   
+            be[:,0] = x_f_int[0]*np.asarray([1,1]) 
 
             b[nds_,0] = b[nds_,0] + be.reshape((be.shape[0],)) 
 
@@ -134,8 +139,11 @@ class compute_qfp(object):
 
                 gamma_ind_ = gamma[nds]
                 psi_ind_ = psi[nds]
-            
-                ae=integrate.quad(lambda x: alpha_dNi_dNj(x, Le, gamma_ind_, psi_ind_), 0, Le)[0]
+
+                if case == 'p':
+                    ae=integrate.quad(lambda x: alpha_dNi_dNj_p(x, Le, gamma_ind_, psi_ind_), 0, Le)[0]
+                elif case == 'n':
+                    ae=integrate.quad(lambda x: alpha_dNi_dNj_n(x, Le, gamma_ind_, psi_ind_), 0, Le)[0]
                 
                 try:
                     val = A[index]
@@ -150,9 +158,8 @@ class compute_qfp(object):
 
             A[index_Nn] = 0; A[index_1] = 0
 
-        A[(0,0)] = np.exp(1); b[0] = np.exp(phi_1)
-        A[(Nn-1, Nn-1)] = np.exp(1); b[Nn-1] = np.exp(phi_2)
-
+        A[(0,0)] = 1; b[0] = np.exp(self.Phi_1)
+        A[(Nn-1, Nn-1)] = 1; b[Nn-1] = np.exp(self.Phi_Nn)
         keys, values = zip(*A.items())
         i, j = zip(*keys)
         i = np.array(i)
@@ -161,16 +168,18 @@ class compute_qfp(object):
 
         self.K = sparse.csr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
         self.b = b
-        print(self.b)
+
     def solve_system(self, case):
 
         X = spsolve(self.K, self.b)
-        print(X)
+        #print('PRINTING X')
+        #print(X)
         if case == 'p':
             self.Phi_p = np.log(X)
-            print(self.Phi_p)
+            #print(self.Phi_p)
         elif case == 'n':
-            self.Phi_n = np.log(X)
-            print(self.Phi_n)
+            self.Phi_n = -np.log(X)
+            #print(self.Phi_n)
 
-    
+
+

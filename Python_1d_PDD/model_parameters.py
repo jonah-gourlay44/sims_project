@@ -3,7 +3,7 @@ import numpy as np
 #some real hardcore unit analysis needs to occur at some point
 class model_parameters(object):
 
-    def __init__(self, geometry, potentials):
+    def __init__(self, geometry, potentials,V):
         self.eps_0=8.85e-12
         self.geometry = geometry
         #set initial potential functions
@@ -27,11 +27,11 @@ class model_parameters(object):
         sig_p=0
         eps_r_p=0
         rho_p=0
-        n_acceptor_ptype = 10**16 #units are per cm^3
+        n_acceptor_ptype = -10**16 #units are per cm^3
 
         #boundary conditions (Dirichlet)
-        self.psi_1=1.5 / (0.02585) #divide by thermal voltage
-        self.psi_2=0 / (0.02585)
+        self.psi_1=V / (0.02585) #divide by thermal voltage
+        self.psi_2=0 # / (0.02585)
         
 
         self.mu_r=np.zeros((geometry.Ne_1d,1))
@@ -64,7 +64,7 @@ class model_parameters(object):
         self.psi[1] = self.psi_2
         
         for i in range(self.geometry.Ne_1d):
-         #approximate psi'' as constant across element
+            #approximate psi'' as constant across element
             nds_= np.asarray(self.geometry.el_1d_no[i],dtype=np.int)
             xl=self.geometry.x_no[nds_]
             Le = xl[1]-xl[0]
@@ -75,3 +75,20 @@ class model_parameters(object):
                 self.psi_pp[i] = (self.psi[nds_[1]+1] - 2*self.psi[nds_[1]] + self.psi[nds_[0]])/(2*Le**2)            
             else: #approximate psi'' by subtracting next slope from previous slope
                 self.psi_pp[i] = (self.psi[nds_[1]+1] - self.psi[nds_[1]] - self.psi[nds_[0]] + self.psi[nds_[0]-1])/(2* Le**2)
+
+class parameters(object):
+
+    def __init__(self, geometry, V):
+        self.N_D = 1e16
+        self.N_A = -1e16
+
+        self.N = np.zeros((geometry.Ne_1d,1))
+
+        self.psi_1 = V / (0.02585) #divide by thermal voltage
+        self.psi_2 = 0
+
+        for i in range(geometry.Ne_1d):
+            if geometry.x_ec[i] < geometry.L_n:
+                self.N[i] = self.N_D
+            if geometry.x_ec[i] > geometry.L_n:
+                self.N[i] = self.N_A

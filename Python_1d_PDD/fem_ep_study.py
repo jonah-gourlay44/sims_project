@@ -15,7 +15,7 @@ Px1=100;Px2=800;Py1=100;Py2=320
 class fem_study:
     #takes electric potential and quasi fermi potentials in 
     # 'parameters' and mesh as arguments. Computes and stores d_phi.
-    def __init__(self, args, parameters, mesh):
+    def __init__(self, parameters, mesh):
         geometry_mesh = mesh 
         linear_elements=1
 

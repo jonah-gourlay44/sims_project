@@ -53,8 +53,6 @@ class matrix_assembly_1d(object):
 
     def impose_boundary_conditions(self):
         Nn = self.geometry.Nn
-        phi_1 = self.parameters.phi_1
-        phi_2 = self.parameters.phi_2
 
         for i in range(Nn):
             index_Nn = (Nn-1, i)
@@ -62,5 +60,5 @@ class matrix_assembly_1d(object):
 
             self.A[index_Nn] = 0; self.A[index_1] = 0
 
-        self.A[(0,0)] = 1; self.b[0] = phi_1
-        self.A[(Nn-1, Nn-1)] = 1; self.b[Nn-1] = phi_2
+        self.A[(0,0)] = 1; self.b[0] = 
+        self.A[(Nn-1, Nn-1)] = 1; self.b[Nn-1] = 0
