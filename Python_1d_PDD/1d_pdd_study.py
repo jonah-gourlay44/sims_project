@@ -79,11 +79,11 @@ def main():
         while(norm_d_phi > cutoff_norm and iteration < 10):
             #perform FEM analysis to solve for d_phi
 
-            #print("###########################\nOutput From Iteration Number: " + str(iteration) + "\n################################")
-            #print("\n\n##########################\nFinding QFPs\n##########################")
-            analysis.integrate(psi)
-            #print(analysis.Phi_p)
-            #print("\n\n##########################\nFinding New EP\n##########################")
+            print("###########################\nOutput From Iteration Number: " + str(iteration) + "\n################################")
+            print("\n\n##########################\nFinding QFPs\n##########################")
+            analysis.integrate(psi, parameters)
+            print(analysis.Phi_p)
+            print("\n\n##########################\nFinding New EP\n##########################")
 
             fem = fem_study(parameters, geometry_mesh)
 
@@ -97,8 +97,6 @@ def main():
                 norm_d_phi = np.linalg.norm(fem.d_psi)
             #print(norm_d_phi > cutoff_norm)
             iteration = iteration + 1
-            print(psi)
-            print(phi_v)
 
         # compute new fields
         fields = field_computation(geometry_mesh, parameters, psi)

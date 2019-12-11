@@ -1,5 +1,7 @@
 import numpy as np
 
+n_i = 1.5e10
+
 #some real hardcore unit analysis needs to occur at some point
 class model_parameters(object):
 
@@ -41,6 +43,7 @@ class model_parameters(object):
         self.n_acceptor=np.zeros((geometry.Ne_1d,1))
         self.n_donor=np.zeros((geometry.Ne_1d,1))
         self.psi_pp=np.zeros((geometry.Ne_1d,1))
+        self.N = np.zeros((geometry.Ne_1d,))
 
         for i in range(geometry.Ne_1d):
             if geometry.x_ec[i] < geometry.L_n:
@@ -49,14 +52,16 @@ class model_parameters(object):
                 self.eps_r[i]=eps_r_n
                 self.rho[i]=rho_n
                 self.n_acceptor[i]=0
-                self.n_donor[i]=n_donor_ntype
+                self.n_donor[i]=n_donor_ntype / 1.5e10
+                self.N[i] = self.n_donor[i]
             if geometry.x_ec[i] > geometry.L_n:
                 self.mu_r[i]=mu_r_p
                 self.sig[i]=sig_p
                 self.eps_r[i]=eps_r_p
                 self.rho[i]=rho_p
-                self.n_acceptor[i]=n_acceptor_ptype
+                self.n_acceptor[i]=n_acceptor_ptype / 1.5e10
                 self.n_donor[i]=0
+                self.N[i] = self.n_acceptor[i]
 
     def update_potentials(self, potentials):
         self.psi, self.phi_v, self.phi_n = potentials
@@ -75,20 +80,27 @@ class model_parameters(object):
                 self.psi_pp[i] = (self.psi[nds_[1]+1] - 2*self.psi[nds_[1]] + self.psi[nds_[0]])/(2*Le**2)            
             else: #approximate psi'' by subtracting next slope from previous slope
                 self.psi_pp[i] = (self.psi[nds_[1]+1] - self.psi[nds_[1]] - self.psi[nds_[0]] + self.psi[nds_[0]-1])/(2* Le**2)
+        
 
 class parameters(object):
 
     def __init__(self, geometry, V):
-        self.N_D = 1e16
-        self.N_A = -1e16
+        N_D = 1e16
+        N_A = 1e16
+        N = 1e16
 
-        self.N = np.zeros((geometry.Ne_1d,1))
-
-        self.psi_1 = V / (0.02585) #divide by thermal voltage
-        self.psi_2 = 0
+        self.N = np.ones((geometry.Ne_1d,)) * N
+        self.N_a = np.zeros((geometry.Ne_1d,))
+        self.N_d = np.zeros((geometry.Ne_1d,))
 
         for i in range(geometry.Ne_1d):
             if geometry.x_ec[i] < geometry.L_n:
-                self.N[i] = self.N_D
+                self.N_a[i] = 0
+                self.N_d[i] = N_D
             if geometry.x_ec[i] > geometry.L_n:
-                self.N[i] = self.N_A
+                self.N_a[i] = N_A
+                self.N_d[i] = 0
+
+        self.psi_1 = - V / 0.025875 + np.log(np.sqrt((self.N[0]/(2 * n_i)) ** 2 + 1) - self.N[0]/(2 * n_i))
+        self.psi_Nn = 0 + np.log(np.sqrt((self.N[-1]/(2 * n_i)) ** 2 + 1) - self.N[-1]/(2 * n_i))
+

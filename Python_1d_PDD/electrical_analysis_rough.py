@@ -22,9 +22,9 @@ u - Recombination rate
 '''
 
 #Material Constants
-E_T = 0; tau_p = 2e-6; tau_n = 1e-5; mu_p = 1400; mu_n = 450; eps = 11.6; n_i = 1e10
+E_T = 0; tau_p = 2e-6; tau_n = 1e-5; mu_p = 1400; mu_n = 450; eps = 11.6; n_i = 1.5e10
 A_n = 1305; A_p = 402; mu_0_n = 1400; mu_0_p = 450; v_scat_p = 7.5e6; v_scat_n = 1e7
-N_c = 2.8e19; N = 1e16; D_0_p = 13; D_0_n = 28
+N_c = 2.8e19; D_0_p = 13; D_0_n = 28
 
 #Environment Constants
 kT_q = 0.025875 # T = 300; q = 1.6e-19; k = 1.38e-23; kT_q := k*T/q
@@ -35,23 +35,18 @@ L_D = np.sqrt(kT_q * eps / n_i)
 class compute_qfp(object):
 
     def __init__(self, mesh, V):
+        self.params = None
         self.Nn = mesh.Nn
         self.R = mesh.L_n + mesh.L_p
         self.V = V
 
-        #self.Phi_p = np.random.rand(self.Nn)
-        #self.Phi_n = np.random.rand(self.Nn)
+        self.Phi_1 = - V / kT_q; self.Phi_Nn = 0
 
-        #self.Phi_p = self.Phi_p/np.linalg.norm(self.Phi_p) / kT_q
-        #self.Phi_n = self.Phi_n/np.linalg.norm(self.Phi_n) / kT_q
+        #self.Phi_p = np.linspace(self.Phi_1, self.Phi_Nn, self.Nn) 
+        #self.Phi_n = np.linspace(self.Phi_1, self.Phi_Nn, self.Nn) 
 
-        self.Phi_1 = V /kT_q; self.Phi_Nn = 0
-
-        self.Phi_p = np.linspace(self.Phi_1, self.Phi_Nn, self.Nn)
-        self.Phi_n = np.linspace(self.Phi_1, self.Phi_Nn, self.Nn)
-
-        #self.Phi_p[0] = self.Phi_1; self.Phi_p[-1] = self.Phi_Nn
-        #self.Phi_n[0] = self.Phi_1; self.Phi_n[-1] = self.Phi_Nn
+        self.Phi_p = np.zeros((self.Nn,))
+        self.Phi_n = np.zeros((self.Nn,))
 
         self.Psi = None
         self.E_f = None
@@ -65,9 +60,10 @@ class compute_qfp(object):
         self.Phi_p[0] = self.Phi_1; self.Phi_p[-1] = self.Phi_Nn
         self.Phi_n[0] = self.Phi_1; self.Phi_n[-1] = self.Phi_Nn
     
-    def integrate(self, psi):
+    def integrate(self, psi, params):
         self.Psi = psi
         self.E_f = -1 * np.gradient(psi)
+        self.params = params
 
         switcher = {
             'p': [mu_p, A_p, mu_0_p, v_scat_p, D_0_p],
@@ -93,8 +89,12 @@ class compute_qfp(object):
             J_r = integrate.simps(U, self.x_no)
 
             E = -1 * np.gradient(self.Psi)
-            gamma = np.sqrt(1 + N/(N_c + N/A**2)) + E * mu_0 / v_scat
+            N = self.params.N.tolist()
+            N.append(self.params.N[-1])
+            N = np.asarray(N) 
+            gamma = np.sqrt(1 + N/((N_c / n_i) + N/A**2)) + E * mu_0 / v_scat
             
+            print(self.Psi)
 
             integrand_FR = np.zeros(self.x_no.shape)
             integrand_F = np.zeros(self.x_no.shape)
@@ -121,7 +121,7 @@ class compute_qfp(object):
                 J_const = (-np.exp(-1 * self.V) + 1 + FR[0]) / F[0]
                 self.Phi_n = np.log(J_const * F - FR + 1)
             
-        self.apply_bcs()
+            self.apply_bcs()
 
 
 '''
