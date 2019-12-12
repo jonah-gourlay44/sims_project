@@ -30,7 +30,7 @@ N_c = 2.8e19; D_0_p = 13; D_0_n = 28
 kT_q = 0.025875 # T = 300; q = 1.6e-19; k = 1.38e-23; kT_q := k*T/q
 kT = 1e-10
 
-L_D = np.sqrt(kT_q * eps / n_i)
+L_D = 0.13299
 
 class compute_qfp(object):
 

@@ -79,11 +79,11 @@ def main():
         while(norm_d_phi > cutoff_norm and iteration < 10):
             #perform FEM analysis to solve for d_phi
 
-            print("###########################\nOutput From Iteration Number: " + str(iteration) + "\n################################")
-            print("\n\n##########################\nFinding QFPs\n##########################")
-            analysis.integrate(psi, parameters)
-            print(analysis.Phi_p)
-            print("\n\n##########################\nFinding New EP\n##########################")
+            #print("###########################\nOutput From Iteration Number: " + str(iteration) + "\n################################")
+            #print("\n\n##########################\nFinding QFPs\n##########################")
+            #analysis.integrate(psi, parameters)
+            #print(analysis.Phi_p)
+            #print("\n\n##########################\nFinding New EP\n##########################")
 
             fem = fem_study(parameters, geometry_mesh)
 

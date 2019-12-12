@@ -85,22 +85,20 @@ class model_parameters(object):
 class parameters(object):
 
     def __init__(self, geometry, V):
-        N_D = 1e16
-        N_A = 1e16
         N = 1e16
 
-        self.N = np.ones((geometry.Ne_1d,)) * N
+        self.N = np.ones((geometry.Ne_1d,)) * N 
         self.N_a = np.zeros((geometry.Ne_1d,))
         self.N_d = np.zeros((geometry.Ne_1d,))
 
         for i in range(geometry.Ne_1d):
             if geometry.x_ec[i] < geometry.L_n:
                 self.N_a[i] = 0
-                self.N_d[i] = N_D
+                self.N_d[i] = N
             if geometry.x_ec[i] > geometry.L_n:
-                self.N_a[i] = N_A
+                self.N_a[i] = N
                 self.N_d[i] = 0
 
-        self.psi_1 = - V / 0.025875 + np.log(np.sqrt((self.N[0]/(2 * n_i)) ** 2 + 1) - self.N[0]/(2 * n_i))
-        self.psi_Nn = 0 + np.log(np.sqrt((self.N[-1]/(2 * n_i)) ** 2 + 1) - self.N[-1]/(2 * n_i))
+        self.psi_1 = V / 0.025875 #+ np.log(np.sqrt((self.N[0]/(2 * n_i)) ** 2 + 1) - self.N[0]/(2 * n_i))
+        self.psi_Nn = 0 #/ 0.02875 + np.log(np.sqrt((self.N[-1]/(2 * n_i)) ** 2 + 1) - self.N[-1]/(2 * n_i))
 
