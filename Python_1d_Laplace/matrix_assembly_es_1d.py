@@ -60,5 +60,5 @@ class matrix_assembly_1d(object):
 
             self.A[index_Nn] = 0; self.A[index_1] = 0
 
-        self.A[(0,0)] = 1; self.b[0] = 
+        self.A[(0,0)] = 1; self.b[0] = 0
         self.A[(Nn-1, Nn-1)] = 1; self.b[Nn-1] = 0

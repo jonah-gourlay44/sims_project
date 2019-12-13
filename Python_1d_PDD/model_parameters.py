@@ -1,6 +1,7 @@
 import numpy as np
-
-n_i = 1.5e10
+from constants import *
+import matplotlib.pyplot as plt
+from geometry_mesh_study import geometry_mesh_study
 
 #some real hardcore unit analysis needs to occur at some point
 class model_parameters(object):
@@ -85,20 +86,36 @@ class model_parameters(object):
 class parameters(object):
 
     def __init__(self, geometry, V):
-        N = 1e16
-
-        self.N = np.ones((geometry.Ne_1d,)) * N 
         self.N_a = np.zeros((geometry.Ne_1d,))
         self.N_d = np.zeros((geometry.Ne_1d,))
+        self.V_bi = kT_q * np.log(N_a * N_d / n_i**2)
+
+        self.dop = np.zeros((geometry.Ne_1d,)) 
+        self.psi = np.zeros((geometry.Nn,))
+        self.n = np.zeros((geometry.Nn,))
+        self.p = np.zeros((geometry.Nn,))
 
         for i in range(geometry.Ne_1d):
             if geometry.x_ec[i] < geometry.L_n:
                 self.N_a[i] = 0
-                self.N_d[i] = N
+                self.N_d[i] = N_d / n_i
+                zz = 0.5 * (self.N_d[i] - self.N_a[i])
+                xx = zz * (1 + np.sqrt(1 + 1/zz**2))
+                self.p[i] = 1/xx
+                self.n[i] = xx
             if geometry.x_ec[i] > geometry.L_n:
-                self.N_a[i] = N
+                self.N_a[i] = N_a / n_i
                 self.N_d[i] = 0
-
+                zz = 0.5 * (self.N_d[i] - self.N_a[i])
+                xx = zz * (1 - np.sqrt(1 + 1/zz**2))
+                self.p[i] = 1/xx
+                self.n[i] = xx
+        
+        self.n[-1] = self.n[-2]
+        self.p[-1] = self.p[-2]
+        self.n = self.n * n_i / N
+        self.p = self.p * n_i / N
+        self.psi = np.log(self.n)
         self.psi_1 = V / 0.025875 #+ np.log(np.sqrt((self.N[0]/(2 * n_i)) ** 2 + 1) - self.N[0]/(2 * n_i))
         self.psi_Nn = 0 #/ 0.02875 + np.log(np.sqrt((self.N[-1]/(2 * n_i)) ** 2 + 1) - self.N[-1]/(2 * n_i))
 

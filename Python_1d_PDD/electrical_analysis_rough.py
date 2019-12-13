@@ -4,6 +4,7 @@ from scipy import integrate
 from geometry_mesh_study import geometry_mesh_study
 from model_parameters import model_parameters
 from fem_ep_study import fem_study
+from constants import *
 
 '''
 -----------------------------------------------------
@@ -20,17 +21,6 @@ u - Recombination rate
 
 -----------------------------------------------------
 '''
-
-#Material Constants
-E_T = 0; tau_p = 2e-6; tau_n = 1e-5; mu_p = 1400; mu_n = 450; eps = 11.6; n_i = 1.5e10
-A_n = 1305; A_p = 402; mu_0_n = 1400; mu_0_p = 450; v_scat_p = 7.5e6; v_scat_n = 1e7
-N_c = 2.8e19; D_0_p = 13; D_0_n = 28
-
-#Environment Constants
-kT_q = 0.025875 # T = 300; q = 1.6e-19; k = 1.38e-23; kT_q := k*T/q
-kT = 1e-10
-
-L_D = 0.13299
 
 class compute_qfp(object):
 
