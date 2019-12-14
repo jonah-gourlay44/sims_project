@@ -6,12 +6,26 @@ from electrical_analysis_rough import compute_qfp
 from scipy import integrate
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
+from numpy.linalg import solve
 import matplotlib.pyplot as plt
 from constants import *
 
 class pdd(object):
 
     def __init__(self, N1, V):
+        W = np.sqrt(2*eps*(N_a + N_d)*V_bi/(q_Na*N_d))
+        Wn = W*np.sqrt(N_a/(N_a+N_d))
+        Wp = W*np.sqrt(N_d/(N_a+N_d))
+        Wone = np.sqrt(2*eps*V_bi/(q_Na))
+        E_p = q_Nd * Wn / eps
+
+        L = 0
+        if L < Wn:
+            L = Wn
+        if L < Wp:
+            L = Wp
+        L = 20*L
+
         self.V = V
 
         self.mesh = geometry_mesh_study(N1, 0.02)
@@ -28,54 +42,54 @@ class pdd(object):
         self.K = None
         self.b = None
 
+        self.delta = np.zeros((self.mesh.Nn,))
+        self.V = np.zeros((self.mesh.Nn,))
+
     def dNi_dNj_beta_Ni_Nj(self, le, psi, n, n_c, p_c):
         x_j = le[1]; x_i = le[0]
-        Le = x_j - x_i
-
-        #x = np.linspace(x_i, x_j, n).reshape((n,))
-        #psi = np.linspace(psi[0], psi[1], n) 
-        #n_c = np.linspace(p_c[0], n_c[1], n)
-        #p_c = np.linspace(p_c[0], p_c[1], n)
-
-        #beta = -(n_c + p_c)
-        #dNi = -1/Le; dNj = 1/Le
-        #Ni = 1/Le * (x_j - x); Nj = 1/Le * (x - x_i)
+        Le = (x_j - x_i) 
 
         ae = np.zeros((2,2))
         ae[:,0] = 1/Le*np.asarray([1,-1])
         ae[:,1] = 1/Le*np.asarray([-1,1])
-        #ae[0,0] = integrate.simps(dNi ** 2 + beta * Ni ** 2, x)
-        #ae[0,1] = integrate.simps(dNi * dNj + beta * Ni * Nj, x)
-        #ae[1,0] = ae[0,1]
-        #ae[1,1] = integrate.simps(dNj ** 2 + beta * Nj ** 2, x)
 
         return ae
     
     def Ni_f(self, le, psi, ind, n, n_c, p_c):
         x_j = le[1]; x_i = le[0]
-        Le = x_j - x_i
-        
-        #x = np.linspace(x_i, x_j, n).reshape((n,))
-        #psi = np.linspace(psi[0], psi[1], n)
-        #n_c = np.linspace(n_c[0], n_c[1], n)
-        #p_c = np.linspace(p_c[0], p_c[1], n)
-
-        #d_2_psi = np.gradient(np.gradient(psi))
+        Le = (x_j - x_i) 
         
         N_c = self.params.N_d[ind] - self.params.N_a[ind]
-        #N_c = (np.ones((n,)) * n_c) / n_i
-        
-        #f = -d_2_psi + n_c - p_c - N_c 
         f = (n_c - p_c - N_c) * n_i / N
         
-        #Ni = 1/Le * (x_j - x); Nj = 1/Le * (x - x_i)
-
         be = np.zeros((2,1))
         be[:,0] = Le/2 * f
-        #be[0,0] = integrate.simps(np.multiply(Ni, f), x)
-        #be[1,0] = integrate.simps(np.multiply(Nj, f), x)
-
+        print(be)
         return be 
+
+    def build_matrices_eq(self):
+        Nn = self.mesh.Nn
+        dx = self.mesh.dx_a
+        Na = self.params.N_a
+        Nd = self.params.N_d
+
+        matrix = np.zeros((Nn, Nn))
+        column = np.zeros((Nn,))
+
+        for i in range(1,Nn-1):
+            row = np.asarray([1, -(2 + n_i/N*dx**2*(np.exp(self.Psi[i]) - np.exp(-1 * self.Psi[i]))), 1])
+            matrix[i,i-1:i+2] = row
+            entry = -self.Psi[i-1] + 2*self.Psi[i] - self.Psi[i+1] + n_i/N*dx**2*(np.exp(self.Psi[i])-np.exp(-1*self.Psi[i]) + (Na[i] - Nd[i]) / n_i)
+            column[i] = entry
+
+        #matrix[0,0:3] = np.asarray([(1 + n_i/N*dx**2*(np.exp(0.3495) - np.exp(-1 * 0.3495))), -2, 1])
+        #matrix[-1,-3:] = np.asarray([1, -2, (1 + n_i/N*dx**2*(np.exp(self.Psi[-1]) - np.exp(-1*self.Psi[-1])))])
+        #column[0] = 0#-1 * self.Psi[2] + 2*self.Psi[1] - 0.3495 + n_i/N*(np.exp(0.3495) - np.exp(-0.3495) + (Na[0]-Nd[0])/n_i)
+        #column[-1] = -1*self.Psi[-1] + 2*self.Psi[-2] -self.Psi[-3] + n_i/N*(np.exp(self.Psi[-1]) - np.exp(-1*self.Psi[-1]) + (Na[-1] - Nd[-1]) / n_i)
+
+        self.K = matrix
+        self.b = column
+
 
     def build_matrices(self, case):
         n = 1000
@@ -127,13 +141,10 @@ class pdd(object):
                 A[(Nn-1, Nn-1)] = 1; b[Nn-1] = 0
             elif case == 'eq':
                 for i in range(Nn):
-                    #index_Nn = (Nn-1, i)
                     index_1 = (0, i)
 
-                    #A[index_Nn] = 0
                     A[index_1] = 0
                 
-                #A[(Nn-1, Nn-1)] = 1; b[-1] = 0
                 A[(0,0)] = 1; b[0] = 0
             
             keys, values = zip(*A.items())
@@ -145,37 +156,28 @@ class pdd(object):
             self.K = sparse.csr_matrix((s, (i, j)), shape=(Nn, Nn), dtype=np.float)
             self.b = b
 
-    def solve(self):
+    def solve(self, case):
+        
+        if case=='non_eq':
+            self.Psi = spsolve(self.K, self.b)
+        elif case=='eq':
+            self.delta = solve(self.K, self.b)
 
-        #delta = spsolve(self.K, self.b)
-        self.Psi = spsolve(self.K, self.b)
-        #return delta
 
     def run_equilibrium(self, num_iter, cutoff):
         iteration = 0; d_psi = 1e3
-        
-        while iteration < num_iter: 
-            self.build_matrices('eq')
-            psi = self.Psi
+        while iteration < num_iter and d_psi > cutoff: 
+            #self.build_matrices('eq')
+            #psi = self.Psi
+            self.build_matrices_eq()
+            self.solve('eq')
 
-            self.solve()
-
-            delta = psi - self.Psi
-            self.p = np.exp(-1 * self.Psi) 
-            self.n = np.exp(self.Psi) 
-            #print(np.exp(self.Psi))
-            #self.p = self.p / np.linalg.norm(self.p)
-            #self.n = self.n / np.linalg.norm(self.n)
-            #zz_1 = 0.5 * (self.params.N_d[0] - self.params.N_a[0])
-            #zz_2 = 0.5 * (self.params.N_d[-1] - self.params.N_a[-1])
-            #xx_1 = zz_1 * (1 + np.sqrt(1 + 1/zz_1**2))
-            #xx_2 = zz_2 * (1 - np.sqrt(1 + 1/zz_2**2))
-            #self.p[0] = 1/xx_1 * n_i / N
-            #self.n[0] = xx_1 * n_i / N
-            #self.p[-1] = 1/xx_2 * n_i / N
-            #self.n[-1] = xx_2 * n_i / N
-
-            d_psi = np.linalg.norm(delta)
+            #delta = psi - self.Psi
+            self.Psi = self.Psi + self.delta
+            #self.p = np.exp(self.Phi_p-self.Psi) 
+            #self.n = np.exp(self.Psi-self.Phi_n) 
+            print(self.K)
+            d_psi = np.linalg.norm(self.delta)
             iteration += 1
 
             print('ITERATION: ' + str(iteration) + ' DELTA: ' + str(d_psi))
@@ -187,9 +189,7 @@ class pdd(object):
         while iteration < num_iter:
             self.build_matrices('non_eq')
             psi = self.Psi
-            #delta = self.solve()
-            self.solve()
-            #self.Psi = self.Psi + delta
+            self.solve('non_eq')
             delta = psi - self.Psi
             self.analysis.integrate(self.Psi, self.params)
             self.Phi_n = self.analysis.Phi_n
@@ -197,10 +197,6 @@ class pdd(object):
 
             self.p = np.exp(self.Phi_p-self.Psi)
             self.n = np.exp(self.Psi-self.Phi_n)
-            #self.p[0] = n_i / N_d 
-            #self.n[0] = N_d / n_i
-            #self.p[-1] = N_a / n_i
-            #self.n[-1] = n_i / N_a
 
             d_psi = np.linalg.norm(delta)
             iteration += 1
@@ -208,12 +204,14 @@ class pdd(object):
             print('ITERATION: ' + str(iteration) + ' DELTA: ' + str(d_psi))
 
 if __name__ == '__main__':
-    pdd = pdd(200,0.0)
-    
-    pdd.run_equilibrium(5,1e-3)
+    pdd = pdd(1000,0.0)
+    #plt.plot(pdd.mesh.x_no, pdd.p)
+    #plt.plot(pdd.mesh.x_no, pdd.Psi)
+    #plt.show()
+    pdd.run_equilibrium(1000,1e-5)
     print((np.max(pdd.Psi) - np.min(pdd.Psi))*kT_q)
-    #plt.plot(pdd.mesh.x_no * L_D, pdd.Psi / kT_q)
-    plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.p)
-    plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.n)
+    plt.plot(pdd.mesh.x_no * L_D, pdd.Psi * kT_q)
+    #plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.p)
+    #plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.n)
 
     plt.show()

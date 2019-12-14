@@ -17,10 +17,10 @@ dEc = Vt*log(RNc/ni);
  
 % Define Doping Values %
  
-Na = 1E18;             % [1/cm^3]
-Nd = 1E18;             % [1/cm^3]
+Na = 1E16;             % [1/cm^3]
+Nd = 1E16;             % [1/cm^3]
  
-% Calculate relevant parameters for the simulation %
+% Calculatex_m relevant parameters for the simulation %
  
 Vbi = Vt*log(Na*Nd/(ni*ni));
 W   = sqrt(2*eps*(Na+Nd)*Vbi/(q*Na*Nd))     % [cm]
@@ -51,7 +51,7 @@ if(x_max < Wp)
     x_max = Wp;
 end
 x_max = 20*x_max
- 
+disp(x_max);
 % Setting the grid size based on the extrinsic Debye length %
  
 dx = Ldn;
@@ -79,7 +79,7 @@ end
  
 % Initialize the potential based on the requirement of charge
 % neutrality throughout the whole structure
- 
+
 for i = 1: n_max
     zz = 0.5*dop(i);
     if(zz > 0)
@@ -111,7 +111,7 @@ for i = 1: n_max
     b(i) = -(2/dx2+exp(fi(i))+exp(-fi(i)));
     f(i) = exp(fi(i)) - exp(-fi(i)) - dop(i) - fi(i)*(exp(fi(i))+exp(-fi(i)));
  end
- 
+
  
 %(B) Define the elements of the coefficient matrix and initialize the forcing
 %    function at the ohmic contacts 

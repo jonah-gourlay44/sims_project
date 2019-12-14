@@ -113,9 +113,9 @@ class parameters(object):
         
         self.n[-1] = self.n[-2]
         self.p[-1] = self.p[-2]
-        self.n = self.n * n_i / N
-        self.p = self.p * n_i / N
+
         self.psi = np.log(self.n)
-        self.psi_1 = V / 0.025875 #+ np.log(np.sqrt((self.N[0]/(2 * n_i)) ** 2 + 1) - self.N[0]/(2 * n_i))
-        self.psi_Nn = 0 #/ 0.02875 + np.log(np.sqrt((self.N[-1]/(2 * n_i)) ** 2 + 1) - self.N[-1]/(2 * n_i))
+        #self.psi = np.exp(f) - np.exp(-f) - (self.N_a - self.N_d) - f*(np.exp(f) + np.exp(-f))
+        #self.psi[0] = 0.3495
+
 

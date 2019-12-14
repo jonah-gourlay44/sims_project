@@ -35,8 +35,8 @@ class compute_qfp(object):
         #self.Phi_p = np.linspace(self.Phi_1, self.Phi_Nn, self.Nn) 
         #self.Phi_n = np.linspace(self.Phi_1, self.Phi_Nn, self.Nn) 
 
-        self.Phi_p = np.zeros((self.Nn,))
-        self.Phi_n = np.zeros((self.Nn,))
+        self.Phi_p = np.ones((self.Nn,)) * 0
+        self.Phi_n = np.ones((self.Nn,)) * 0
 
         self.Psi = None
         self.E_f = None

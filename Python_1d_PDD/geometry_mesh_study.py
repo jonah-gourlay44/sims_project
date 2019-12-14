@@ -8,8 +8,16 @@ class geometry_mesh_study(object):
     def __init__(self, N1, L): 
         self.Ldi = np.sqrt(eps * kT_q / q_ni)
         self.Ldn = np.sqrt(eps * kT_q / q_Nd)
-        
+        self.Ldp = np.sqrt(eps * kT_q / q_Na)
 
+        #dx = self.Ldn
+        #if dx > self.Ldp:
+        #    dx = self.Ldp
+        #dx = dx / 20
+        
+        #N1 = round(L / dx)
+        #dx = dx / self.Ldi
+        
         self.L_n=L / (2 * self.Ldi)                #Length of the n-type block (Debye length normalized)
         self.L_p=L / (2 * self.Ldi)                #Length of the p-type block (Debye length normalized)
         self.N_n=int(N1/2)                         #Number of elements in the n-type block
