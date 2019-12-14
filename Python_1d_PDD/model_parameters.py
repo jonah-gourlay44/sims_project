@@ -114,7 +114,7 @@ class parameters(object):
         self.n[-1] = self.n[-2]
         self.p[-1] = self.p[-2]
 
-        self.psi = np.log(self.n)
+        self.psi = np.log(self.n) 
         #self.psi = np.exp(f) - np.exp(-f) - (self.N_a - self.N_d) - f*(np.exp(f) + np.exp(-f))
         #self.psi[0] = 0.3495
 

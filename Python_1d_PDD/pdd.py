@@ -50,8 +50,8 @@ class pdd(object):
         Le = (x_j - x_i) 
 
         ae = np.zeros((2,2))
-        ae[:,0] = 1/Le*np.asarray([1,-1])
-        ae[:,1] = 1/Le*np.asarray([-1,1])
+        ae[:,0] = 1/Le*np.asarray([-1,1])
+        ae[:,1] = 1/Le*np.asarray([1,-1])
 
         return ae
     
@@ -64,7 +64,7 @@ class pdd(object):
         
         be = np.zeros((2,1))
         be[:,0] = Le/2 * f
-        print(be)
+       
         return be 
 
     def build_matrices_eq(self):
@@ -145,7 +145,8 @@ class pdd(object):
 
                     A[index_1] = 0
                 
-                A[(0,0)] = 1; b[0] = 0
+                n_n_contact = (N + np.sqrt(N**2 + 4 * n_i**2))/2 
+                A[(0,0)] = 1; b[0] = np.log(n_n_contact/n_i)
             
             keys, values = zip(*A.items())
             i, j = zip(*keys)
@@ -166,18 +167,21 @@ class pdd(object):
 
     def run_equilibrium(self, num_iter, cutoff):
         iteration = 0; d_psi = 1e3
-        while iteration < num_iter and d_psi > cutoff: 
-            #self.build_matrices('eq')
-            #psi = self.Psi
-            self.build_matrices_eq()
-            self.solve('eq')
 
-            #delta = psi - self.Psi
-            self.Psi = self.Psi + self.delta
-            #self.p = np.exp(self.Phi_p-self.Psi) 
-            #self.n = np.exp(self.Psi-self.Phi_n) 
-            print(self.K)
-            d_psi = np.linalg.norm(self.delta)
+        while iteration < num_iter and d_psi > cutoff: 
+            self.build_matrices('eq')
+            psi = self.Psi
+            print(self.Psi)
+            #self.build_matrices_eq()
+            self.solve('non_eq')
+            
+            delta = psi - self.Psi
+
+            #self.Psi = self.Psi + self.delta
+            self.p = np.exp(self.Phi_p-self.Psi) 
+            self.n = np.exp(self.Psi-self.Phi_n)
+            
+            d_psi = np.linalg.norm(delta)
             iteration += 1
 
             print('ITERATION: ' + str(iteration) + ' DELTA: ' + str(d_psi))
@@ -204,14 +208,15 @@ class pdd(object):
             print('ITERATION: ' + str(iteration) + ' DELTA: ' + str(d_psi))
 
 if __name__ == '__main__':
-    pdd = pdd(1000,0.0)
+    pdd = pdd(100,0.0)
     #plt.plot(pdd.mesh.x_no, pdd.p)
     #plt.plot(pdd.mesh.x_no, pdd.Psi)
     #plt.show()
-    pdd.run_equilibrium(1000,1e-5)
-    print((np.max(pdd.Psi) - np.min(pdd.Psi))*kT_q)
-    plt.plot(pdd.mesh.x_no * L_D, pdd.Psi * kT_q)
-    #plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.p)
-    #plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.n)
+    pdd.run_equilibrium(200,1e-5)
+    print((np.max(pdd.Psi) - np.min(pdd.Psi)))
+    plt.plot(pdd.mesh.x_no * L_D, pdd.Psi )
+    plt.figure()
+    plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.p)
+    plt.plot(pdd.mesh.x_no * pdd.mesh.Ldi, pdd.n)
 
     plt.show()
