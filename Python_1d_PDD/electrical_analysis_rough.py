@@ -49,6 +49,10 @@ class compute_qfp(object):
     def apply_bcs(self):
         self.Phi_p[0] = self.Phi_1; self.Phi_p[-1] = self.Phi_Nn
         self.Phi_n[0] = self.Phi_1; self.Phi_n[-1] = self.Phi_Nn
+
+    def apply_eq_bcs(self, psi):
+        self.Phi_n[0] = psi[0]; self.Phi_n[-1] = 1000
+        self.Phi_p[0] = -1000; self.Phi_p[-1] = psi[0]
     
     def integrate(self, psi, params):
         self.Psi = psi

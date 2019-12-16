@@ -98,24 +98,16 @@ class parameters(object):
         for i in range(geometry.Ne_1d):
             if geometry.x_ec[i] < geometry.L_n:
                 self.N_a[i] = 0
-                self.N_d[i] = N_d / n_i
-                zz = 0.5 * (self.N_d[i] - self.N_a[i])
-                xx = zz * (1 + np.sqrt(1 + 1/zz**2))
-                self.p[i] = 1/xx
-                self.n[i] = xx
+                self.N_d[i] = N_d / N
             if geometry.x_ec[i] > geometry.L_n:
-                self.N_a[i] = N_a / n_i
+                self.N_a[i] = N_a / N
                 self.N_d[i] = 0
-                zz = 0.5 * (self.N_d[i] - self.N_a[i])
-                xx = zz * (1 - np.sqrt(1 + 1/zz**2))
-                self.p[i] = 1/xx
-                self.n[i] = xx
         
         self.n[-1] = self.n[-2]
         self.p[-1] = self.p[-2]
-
-        self.psi = np.log(self.n) 
-        #self.psi = np.exp(f) - np.exp(-f) - (self.N_a - self.N_d) - f*(np.exp(f) + np.exp(-f))
-        #self.psi[0] = 0.3495
+        
+        self.n = np.tanh(-geometry.x_no + 3).reshape((geometry.Nn,)) #* n_i / N + n_i / N
+        self.p = -np.tanh(-geometry.x_no + 3).reshape((geometry.Nn,)) #* n_i / N + n_i / N
+        self.psi = np.tanh(-geometry.x_no + 3).reshape((geometry.Nn,)) * np.log(N_a*N_d/n_i**2)
 
 
