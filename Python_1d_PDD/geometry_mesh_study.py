@@ -10,11 +10,11 @@ class geometry_mesh_study(object):
         self.Ldn = np.sqrt(eps * kT_q / q_Nd) 
         self.Ldp = np.sqrt(eps * kT_q / q_Na)
 
-        W_ldi = W / self.Ldi * 20
-        L_ldi = L / self.Ldi - W_ldi        
+        self.W_ldi = W / self.Ldi * 5
+        L_ldi = L / self.Ldi #- self.W_ldi        
 
-        self.dx_w =  self.Ldn / self.Ldi 
-        self.N_w = int(W_ldi / self.dx_w)
+        self.dx_w = self.Ldn / self.Ldi 
+        self.N_w = int(self.W_ldi / self.dx_w)
         
         self.L_n=L_ldi / 2                       #Length of the n-type block (Debye length normalized)
         self.L_p=L_ldi / 2                       #Length of the p-type block (Debye length normalized)
@@ -22,7 +22,7 @@ class geometry_mesh_study(object):
         self.N_p=int(N1/2)                       #Number of elements in the p-type block
         self.dx_a=self.L_n / self.N_n            #Element length in n-type (Debye length normalized)
         self.dx_i=self.L_p / self.N_p            #Element length in the p-type (Debye length normalized)
-        self.Ne_1d=self.N_n+self.N_p+self.N_w    #Number of 1-D elements
+        self.Ne_1d=self.N_n+self.N_p#+self.N_w    #Number of 1-D elements
         self.Nn=self.Ne_1d+1                     #Number of nodes
         
         self.el_1d_no=np.zeros((self.Ne_1d,2))
@@ -43,13 +43,13 @@ class geometry_mesh_study(object):
             self.el_mat_1d[self.e_count,0]=1
             self.x_ec[self.e_count,0]=np.mean([self.x_no[self.n_count-1],self.x_no[self.n_count]])
         
-        for i in range(self.N_w):
-            self.n_count = self.n_count+1
-            self.e_count = self.e_count+1
-            self.x_no[self.n_count] = self.x_no[self.n_count-1]+self.dx_w
-            self.el_1d_no[self.e_count,:]=np.asarray([self.n_count-1, self.n_count])
-            self.el_mat_1d[self.e_count,0]=1
-            self.x_ec[self.e_count,0]=np.mean([self.x_no[self.n_count-1], self.x_no[self.n_count]])
+        #for i in range(self.N_w):
+        #    self.n_count = self.n_count+1
+        #    self.e_count = self.e_count+1
+        #    self.x_no[self.n_count] = self.x_no[self.n_count-1]+self.dx_w
+        #    self.el_1d_no[self.e_count,:]=np.asarray([self.n_count-1, self.n_count])
+        #    self.el_mat_1d[self.e_count,0]=1
+        #    self.x_ec[self.e_count,0]=np.mean([self.x_no[self.n_count-1], self.x_no[self.n_count]])
 
         for i in range(self.N_p):
             self.n_count=self.n_count+1

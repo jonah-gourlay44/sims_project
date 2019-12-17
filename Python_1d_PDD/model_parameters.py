@@ -90,7 +90,7 @@ class parameters(object):
         self.N_d = np.zeros((geometry.Ne_1d,))
         self.V_bi = kT_q * np.log(N_a * N_d / n_i**2)
 
-        self.dop = np.zeros((geometry.Ne_1d,)) 
+        self.dop = np.zeros((geometry.Nn,)) 
         self.psi = np.zeros((geometry.Nn,))
         self.n = np.zeros((geometry.Nn,))
         self.p = np.zeros((geometry.Nn,))
@@ -98,16 +98,32 @@ class parameters(object):
         for i in range(geometry.Ne_1d):
             if geometry.x_ec[i] < geometry.L_n:
                 self.N_a[i] = 0
-                self.N_d[i] = N_d / N
+                self.N_d[i] = N_d / n_i
+                #self.n[i] = 0.5*(N_d + np.sqrt(N_d**2 + 4*n_i**2))/n_i
+                #self.p[i] = n_i / self.n[i]
             if geometry.x_ec[i] > geometry.L_n:
-                self.N_a[i] = N_a / N
+                self.N_a[i] = N_a / n_i
                 self.N_d[i] = 0
+                #self.p[i] = 0.5*(N_a + np.sqrt(N_a**2 + 4*n_i**2))/n_i
+                #self.n[i] = n_i / self.p[i]
+
+
+            self.dop[i] = (self.N_d[i] - self.N_a[i])
+
+        #self.n[-1] = self.n[-2]
+        #self.p[-1] = self.p[-2]
+
+        x = geometry.x_no.reshape((geometry.Nn,))
+        x_half = geometry.L_n
+        self.psi = -np.log(N_d/n_i)*np.tanh(200*(x-x_half))
+
+        self.n = np.exp(self.psi)
+        self.p = np.exp(-self.psi)
+
+        self.dop[-1] = -N_a 
+
+
         
-        self.n[-1] = self.n[-2]
-        self.p[-1] = self.p[-2]
         
-        self.n = np.tanh(-geometry.x_no + 3).reshape((geometry.Nn,)) #* n_i / N + n_i / N
-        self.p = -np.tanh(-geometry.x_no + 3).reshape((geometry.Nn,)) #* n_i / N + n_i / N
-        self.psi = np.tanh(-geometry.x_no + 3).reshape((geometry.Nn,)) * np.log(N_a*N_d/n_i**2)
 
 
