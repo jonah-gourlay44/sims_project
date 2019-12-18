@@ -59,7 +59,7 @@ class pdd(object):
         Nj = 1/Le*(x - x_i)
         
         be = np.zeros((2,1))
-        be[:,0] = integrate.simps(Ni*Nj, x) * f
+        be[:,0] = integrate.simps(Ni, x) * f
 
         return be 
 
