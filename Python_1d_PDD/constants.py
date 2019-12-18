@@ -2,7 +2,7 @@ import numpy as np
 
 #Environment Constants
 kT_q = 0.025875 # T = 300; q = 1.6e-19; k = 1.38e-23; kT_q := k*T/q
-kT = 1e-10; q_Na = 0.0016; q_Nd = 0.0016; q_ni = 2.4e-9
+kT = 1e-10; q_Na = 0.0016; q_Nd = 0.0016; q_ni = 2.4e-9; q = 1e-19
 
 #Material Constants
 E_T = 0; tau_p = 2e-6; tau_n = 1e-5; mu_p = 1400; mu_n = 450; eps = 8.84e-14 * 11.6; n_i = 8.954e9

@@ -2,8 +2,7 @@ import numpy as np
 import itertools
 from scipy import integrate
 from geometry_mesh_study import geometry_mesh_study
-from model_parameters import model_parameters
-from fem_ep_study import fem_study
+from model_parameters import parameters
 from constants import *
 
 '''
