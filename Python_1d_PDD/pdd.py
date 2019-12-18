@@ -36,6 +36,11 @@ class pdd(object):
         self.d_2_psi = None
         self.dn_dt = np.zeros((self.mesh.Nn,))
         self.dp_dt = np.zeros((self.mesh.Nn,))
+
+        self.p_prev = np.zeros((self.mesh.Nn,))
+        self.n_prev = np.zeros((self.mesh.Nn,))
+
+        self.G = None
     
     def dPsi_dNi_Nj(self, d_psi):
         d_psi = (d_psi[0] + d_psi[1]) / 2
@@ -70,6 +75,12 @@ class pdd(object):
 
         return m
 
+    def compute_G(self):
+        tau_n_norm = tau_n / 1.583e-6
+        tau_p_norm = tau_p / 1.583e-6
+
+        self.G = (1 - self.p*self.n) / (tau_p_norm*(self.n + 1) + tau_n_norm*(self.p + 1))
+
     def build_matrices(self, func):
         Ne_1d = self.mesh.Ne_1d
         el_1d_no = self.mesh.el_1d_no
@@ -80,6 +91,7 @@ class pdd(object):
         b = {}
 
         self.d_psi = np.gradient(self.Psi, self.mesh.x_no.reshape((self.mesh.Nn,)))
+        self.compute_G()
         
         for i in range(Ne_1d):
             nds_= np.asarray(el_1d_no[i],dtype=np.int)
@@ -168,22 +180,22 @@ class pdd(object):
             b = self.b.dot(f)
             self.Psi = spsolve(self.K, b)
         elif func == 'p':
-            f = self.dp_dt
+            f = self.dp_dt + self.G
             f[0] = n_i / N_d; f[-1] = N_a / n_i
             b = self.b.dot(f)
             self.p = self.alpha*spsolve(self.K, b) + (1-self.alpha)*self.p
         elif func == 'n':
-            f = self.dn_dt
+            f = self.dn_dt + self.G
             f[0] = N_d / n_i; f[-1] = n_i / N_a
             b = self.b.dot(f)
             self.n = self.alpha*spsolve(self.K, b) + (1-self.alpha)*self.n
         elif func == 'n_t':
-            f = self.n
+            f = self.n + self.G * self.dt
             b = self.b.dot(f)
             self.n = spsolve(self.K, b)
             self.dn_dt = (self.n - f) / self.dt
         elif func == 'p_t':
-            f = self.p
+            f = self.p + self.G * self.dt
             b = self.b.dot(f)
             self.p = spsolve(self.K, b)
             self.dp_dt = (self.p - f) / self.dt
@@ -208,7 +220,7 @@ class pdd(object):
             self.d_psi = np.gradient(self.Psi, self.mesh.x_no.reshape((self.mesh.Nn,)))
             self.d_2_psi = np.gradient(self.d_psi, self.mesh.x_no.reshape((self.mesh.Nn,)))
 
-            res = self.d_2_psi - (self.n - self.p - self.params.dop)*q/eps
+            res = self.d_2_psi - (self.n - self.p - self.params.dop)*q
             d_res = np.linalg.norm(res) 
      
             delta = psi - self.Psi
@@ -230,25 +242,25 @@ if __name__ == '__main__':
     f, (ax1, ax2) = plt.subplots(1, 2)
 
     num_points = 500
-    dt = 1e-13
+    dt = 1e-6
     alpha = 0.01
 
     my_pdd = pdd(num_points, dt, alpha)
 
     for i in range(40):
-        ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.p, 'b-', linewidth=1.5, markersize=4)
-        ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.n, 'r-', linewidth=1.5, markersize=4)
+        #ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.p, 'b-', linewidth=1.5, markersize=4)
+        ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.n - my_pdd.p - my_pdd.params.dop, 'r-', linewidth=1.5, markersize=4)
         ax2.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.Psi,'b-', linewidth=1.5, markersize=4)
         plt.pause(0.0001)
         ax1.clear()
         ax2.clear()
 
-        for i in range(1):
+        for j in range(20):
             my_pdd.run_equilibrium(1000,1e-3)
             my_pdd.run_time_step()
 
-            ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.p, 'b-', linewidth=1.5, markersize=4)
-            ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.n, 'r-', linewidth=1.5, markersize=4)
+            #ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.p, 'b-', linewidth=1.5, markersize=4)
+            ax1.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.n - my_pdd.p - my_pdd.params.dop, 'r-', linewidth=1.5, markersize=4)
             ax2.plot(my_pdd.mesh.x_no * my_pdd.mesh.Ldi, my_pdd.Psi,'b-', linewidth=1.5, markersize=4)
             plt.pause(0.0001)
             ax1.clear()

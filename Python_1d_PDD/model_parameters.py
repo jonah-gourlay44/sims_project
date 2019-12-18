@@ -32,7 +32,7 @@ class parameters(object):
         self.n = np.exp(self.psi)
         self.p = np.exp(-self.psi)
 
-        self.dop[-1] = -N_a 
+        self.dop[-1] = -N_a / n_i
 
 
         
